@@ -1,2 +1,4 @@
 **.idea**
-**.egg**q
+**.egg**
+**__pycache__**
+google-scheduler/**
