@@ -1,5 +1,50 @@
 ---
 events:
-  - name: Experiment 1
-  - name: Experiment 2
-  - name: Experiment 3
+  UBC-gFP Transplant:
+    user_inputs:
+      - name: "Identification Number"
+        type: "number"
+        min: -100
+        max: 100
+        step: 1
+      - name: "Start Date"
+        type: "date"
+        is_start: true
+    time_events:
+      - days: 0
+        title: "Plug"
+      - days: 14
+        title: "Injection/Treatment"
+      - days: 15
+        title: "Sort/Transplant"
+      - days: 22
+        title: "Analysis #1"
+      - days: 26
+        title: "Analysis #2"
+      - days: 30
+        title: "Analysis #3"
+      - days: 34
+        title: "Analysis #4"
+
+  Wean Reminder:
+    user_inputs:
+      - name: "Colony Choice"
+        type: "single_select"
+        options:
+          - "SFLK Switch"
+          - "Flkz Che"
+          - "Mtmg"
+          - "MX-1"
+          - "UBC-GPP"
+      - name: "Cage ID"
+        type: "string"
+      - name: "Litter Born Date"
+        type: "date"
+        is_start: true
+    time_events:
+      - days: 21
+        title: "Wean"
+
+  Experiment 3:
+    user_inputs: []
+    time_events: []
