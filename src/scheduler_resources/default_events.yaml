@@ -2,11 +2,8 @@
 events:
   UBC-gFP Transplant:
     user_inputs:
-      - name: "Identification Number"
-        type: "number"
-        min: -100
-        max: 100
-        step: 1
+      - name: "Identification"
+        type: "string"
       - name: "Start Date"
         type: "date"
         is_start: true

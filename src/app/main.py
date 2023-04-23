@@ -5,7 +5,8 @@ Details of setup can be found in the Readme of the repository
 
 import streamlit as st
 import oyaml, os, datetime
-from src.scheduler_lib.gcal_functions import get_main_task_list, get_a_task
+from src.scheduler_lib.gcal_functions import get_a_task, add_tasks
+from src.scheduler_lib import raw_app_data_to_tasks, prettify_tasks
 
 # load in the resource data
 with open(os.path.abspath('src/scheduler_resources/default_events.yaml'), 'r') as rid:
@@ -26,7 +27,7 @@ time_points = st.sidebar.number_input("Number of Time Events:", min_value=1, max
 with st.sidebar.form("Experiment Details"):
 
     # dict to store all user inputs
-    user_inputs_results = {'time_events': [{} for i in range(time_points)]}
+    user_inputs_results = {'time_events': [{} for i in range(time_points)], "Experiment Selection": general_choice}
 
     # display the user input options
     st.header("User Inputs")
@@ -47,7 +48,10 @@ with st.sidebar.form("Experiment Details"):
 
         # date inputs
         elif user_input['type'] == 'date':
-            user_inputs_results[user_input['name']] = st.date_input(user_input['name'] + " (YYYY/MM/DD)", value=datetime.date.today())
+            if user_input['is_start']:
+                user_inputs_results['start_date_input'] = st.date_input(user_input['name'] + " (YYYY/MM/DD)", value=datetime.date.today())
+            else:
+                user_inputs_results[user_input['name']] = st.date_input(user_input['name'] + " (YYYY/MM/DD)", value=datetime.date.today())
 
     # display the time events
     st.header("Time Events")
@@ -62,32 +66,43 @@ with st.sidebar.form("Experiment Details"):
     # submit
     submit_spec = st.form_submit_button("Verify My Choices")
     if submit_spec:
-        with open('_tmp_spec.yaml', 'w') as wid:
-            oyaml.dump(user_inputs_results, wid)
+        st.session_state['user_genned_data'] = user_inputs_results
 
 # display the generated details in the main panel
-# for user final review before submitting
-if os.path.isfile('_tmp_spec.yaml'):
-    with open('_tmp_spec.yaml', 'r') as rid:
-        user_genned_data = oyaml.safe_load(rid)
-        st.text_area("User Created Specification", str(user_genned_data))
-else:
-    user_genned_data = None
-
+# for user final review before submitting and
 # provide final submit button
-if user_genned_data is not None:
+if st.session_state.get('user_genned_data') is not None:
+    # convert the raw data to a list of tasks
+    tasks = raw_app_data_to_tasks(st.session_state['user_genned_data'])
+
+    # display for the user
+    st.header("Events Specified")
+    for task_set in prettify_tasks(tasks):
+        st.markdown("""---""")
+        for line in task_set:
+            st.markdown(line)
+    st.markdown("""---""")
+
+    # final submit activity
     final_submit = st.button("Submit to Google Calendar!")
-
     if final_submit:
+        st.write("Submitting...")
+
+        #actual calling of the google api
+        results = add_tasks(tasks)
+
+        # now remove the genned data
+        st.session_state['user_genned_data'] = None
+        tasks = None
+
+        # output the results
         st.write("Submitted!")
-
-        # call the submit method
-        task_lists = get_a_task()
-        st.write("Results")
-        st.write(task_lists)
-
-        # now remove the temp file
-        os.remove('_tmp_spec.yaml')
+        st.header("Results:")
+        if results:
+            for result in results:
+                st.write(result)
+        else:
+            st.write("No Results Obtained")
 
 
 
