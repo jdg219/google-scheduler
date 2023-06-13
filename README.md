@@ -1,5 +1,11 @@
 # Google Scheduler
 
+The code here is a simple app to provide the user a way to easily specify and schedule a series of events
+as tasks in Google.
+
+## Quickstart
+
+
 ### Brief Notes to be expanded upon
 
 - need to specify a start_date user input for each treatment
